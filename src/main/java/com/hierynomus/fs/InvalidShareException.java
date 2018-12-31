@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hierynomus.smbj
+package com.hierynomus.fs;
 
-import java.nio.file.FileSystems
-
-class FileSystemIntegrationSpec extends SmbSpecification {
-  def uri = URI.create("smb://${USER}:${PASSWORD}@${c.containerIpAddress}:${c.firstMappedPort}/user")
-
-  def "should create filesystem"() {
-    when:
-    def fileSystem = FileSystems.newFileSystem(uri, [:])
-
-    then:
-    fileSystem != null
-  }
+public class InvalidShareException extends RuntimeException {
+    InvalidShareException(String message) {
+        super(message);
+    }
 }
