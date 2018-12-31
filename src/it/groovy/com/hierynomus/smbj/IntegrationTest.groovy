@@ -26,7 +26,7 @@ import com.hierynomus.smbj.share.File
 import static com.hierynomus.mssmb2.SMB2CreateDisposition.FILE_OPEN
 
 class IntegrationTest extends SmbSpecification {
-  static final def AUTH = new AuthenticationContext("smbj", "smbj".toCharArray(), null)
+  static final def AUTH = new AuthenticationContext(USER, PASSWORD.toCharArray(), null)
   static final def SHARE = "public"
   static final def FOLDER_THAT_EXISTS = "folder"
   static final def FILE_THAT_EXISTS = "test.txt"

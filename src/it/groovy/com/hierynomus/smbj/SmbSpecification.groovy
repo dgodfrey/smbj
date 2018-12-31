@@ -28,6 +28,9 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 class SmbSpecification extends Specification {
+  protected static def USER = 'smbj'
+  protected static def PASSWORD = 'smbj'
+
   @Shared
   @ClassRule
   TemporaryFolder folder = new TemporaryFolder();

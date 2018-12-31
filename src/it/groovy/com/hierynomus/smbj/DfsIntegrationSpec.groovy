@@ -39,7 +39,7 @@ class DfsIntegrationSpec extends SmbSpecification {
       .build()
     client = new SMBClient(config)
     connection = client.connect(c.containerIpAddress, c.firstMappedPort)
-    session = connection.authenticate(new AuthenticationContext("smbj", "smbj".toCharArray(), null))
+    session = connection.authenticate(new AuthenticationContext(USER, PASSWORD.toCharArray(), null))
   }
 
   def cleanup() {
