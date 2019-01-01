@@ -40,4 +40,11 @@ class SmbFsPathSpec extends Specification {
 
     new SmbFsPath(fileSystem, false, 'dir', 'dir2').root == null
   }
+
+  def 'returns filename'() {
+    expect:
+    new SmbFsPath(fileSystem, true).fileName == null
+    new SmbFsPath(fileSystem, true, 'dir', 'dir2').fileName.toString() == 'dir2'
+    new SmbFsPath(fileSystem, false, 'dir', 'file.txt').fileName.toString() == 'file.txt'
+  }
 }

@@ -58,8 +58,11 @@ public class SmbFsPath implements Path {
 
     @Override
     public Path getFileName() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        int segmentLength = segments.length;
+        if (segmentLength == 0)
+            return null;
+
+        return new SmbFsPath(fileSystem, false, segments[segmentLength - 1]);
     }
 
     @Override
