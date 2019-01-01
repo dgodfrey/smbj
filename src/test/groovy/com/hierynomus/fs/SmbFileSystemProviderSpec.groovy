@@ -118,5 +118,20 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       then:
       fileSystem == current
     }
+
+    def "should remove FileSystem"() {
+      when:
+      provider.removeFileSystem(fileSystem)
+      provider.getFileSystem(uri)
+
+      then:
+      thrown FileSystemNotFoundException
+
+      when:
+      def current = provider.newFileSystem(uri, [:])
+
+      then:
+      fileSystem != current
+    }
   }
 }

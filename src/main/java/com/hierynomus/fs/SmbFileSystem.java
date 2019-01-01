@@ -26,6 +26,8 @@ import java.util.Set;
 class SmbFileSystem extends FileSystem {
     private final SmbFileSystemProvider provider;
 
+    private boolean open;
+
     SmbFileSystem(SmbFileSystemProvider provider) {
         this.provider = provider;
     }
@@ -37,14 +39,13 @@ class SmbFileSystem extends FileSystem {
 
     @Override
     public void close() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        open = false;
+        provider.removeFileSystem(this);
     }
 
     @Override
     public boolean isOpen() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        return open;
     }
 
     @Override

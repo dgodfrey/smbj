@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hierynomus.smbj
+package com.hierynomus.fs
 
-import java.nio.file.FileSystems
+import spock.lang.Specification
 
-class FileSystemIntegrationSpec extends SmbSpecification {
-  def uri = URI.create("smb://${USER}:${PASSWORD}@${c.containerIpAddress}:${c.firstMappedPort}/user")
+class SmbFileSystemSpec extends Specification {
+  def provider = Mock(SmbFileSystemProvider)
 
-  def "should create and close filesystem"() {
+  SmbFileSystem fileSystem
+
+  def setup() {
+    fileSystem = new SmbFileSystem(provider)
+  }
+
+  def 'should close and remove from provider'() {
     when:
-    def fileSystem = FileSystems.newFileSystem(uri, [:])
     fileSystem.close()
 
     then:
-    fileSystem != null
+    1 * provider.removeFileSystem(fileSystem)
+    !fileSystem.open
   }
 }
