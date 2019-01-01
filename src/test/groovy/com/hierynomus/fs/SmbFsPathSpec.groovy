@@ -19,6 +19,8 @@ import spock.lang.Specification
 
 class SmbFsPathSpec extends Specification {
 
+  def fileSystem = new SmbFileSystem(null)
+
   def 'calculates path'() {
     expect:
     new SmbFsPath(null, true).toString() == '\\'
@@ -30,5 +32,12 @@ class SmbFsPathSpec extends Specification {
     new SmbFsPath(null, false, 'file.txt').toString() == 'file.txt'
     new SmbFsPath(null, false, 'dir').toString() == 'dir'
     new SmbFsPath(null, false, 'dir', 'dir2').toString() == 'dir\\dir2'
+  }
+
+  def 'returns root'() {
+    expect:
+    new SmbFsPath(fileSystem, true, 'dir', 'dir2').root.toString() == '\\'
+
+    new SmbFsPath(fileSystem, false, 'dir', 'dir2').root == null
   }
 }

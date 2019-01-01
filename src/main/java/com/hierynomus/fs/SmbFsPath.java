@@ -50,8 +50,10 @@ public class SmbFsPath implements Path {
 
     @Override
     public Path getRoot() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        if (!isAbsolute())
+            return null;
+
+        return fileSystem.getRootDirectory();
     }
 
     @Override

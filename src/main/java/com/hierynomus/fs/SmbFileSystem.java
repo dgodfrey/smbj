@@ -64,9 +64,13 @@ class SmbFileSystem extends FileSystem {
         throw new UnsupportedOperationException("todo");
     }
 
+    Path getRootDirectory() {
+        return root;
+    }
+
     @Override
     public Iterable<Path> getRootDirectories() {
-        return Collections.singleton((Path)root);
+        return Collections.singleton(getRootDirectory());
     }
 
     @Override
