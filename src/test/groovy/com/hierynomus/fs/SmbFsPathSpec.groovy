@@ -47,4 +47,14 @@ class SmbFsPathSpec extends Specification {
     new SmbFsPath(fileSystem, true, 'dir', 'dir2').fileName.toString() == 'dir2'
     new SmbFsPath(fileSystem, false, 'dir', 'file.txt').fileName.toString() == 'file.txt'
   }
+
+  def 'returns parent'() {
+    expect:
+    new SmbFsPath(fileSystem, true).parent == null
+    new SmbFsPath(fileSystem, true, "dir").parent.toString() == '\\'
+    new SmbFsPath(fileSystem, true, "dir", "dir2").parent.toString() == '\\dir'
+
+    new SmbFsPath(fileSystem, false, "dir").parent == null
+    new SmbFsPath(fileSystem, false, "dir", "dir2").parent.toString() == 'dir'
+  }
 }

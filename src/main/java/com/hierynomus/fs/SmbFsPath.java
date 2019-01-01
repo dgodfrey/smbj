@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class SmbFsPath implements Path {
@@ -62,13 +63,15 @@ public class SmbFsPath implements Path {
         if (segmentLength == 0)
             return null;
 
-        return new SmbFsPath(fileSystem, false, segments[segmentLength - 1]);
+        return newRelativePath(segmentLength, segmentLength - 1);
     }
 
     @Override
     public Path getParent() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        if (segments.length == 0 || segments.length == 1 && !absolute)
+            return null;
+
+        return newPath(0, segments.length - 1);
     }
 
     @Override
@@ -195,6 +198,18 @@ public class SmbFsPath implements Path {
     public int compareTo(Path other) {
         // Todo: implement
         throw new UnsupportedOperationException("todo");
+    }
+
+    private Path newRelativePath(int to, int from) {
+        return newPath(false, from, to);
+    }
+
+    private Path newPath(int from, int to) {
+        return newPath(absolute, from, to);
+    }
+
+    private Path newPath(boolean absolute, int from, int to) {
+        return new SmbFsPath(fileSystem, absolute, Arrays.copyOfRange(segments, from, to));
     }
 
     @Override
