@@ -16,16 +16,24 @@
 package com.hierynomus.smbj
 
 import java.nio.file.FileSystems
+import spock.lang.PendingFeature
 
 class FileSystemIntegrationSpec extends SmbSpecification {
   def uri = URI.create("smb://${USER}:${PASSWORD}@${c.containerIpAddress}:${c.firstMappedPort}/user")
 
-  def "should create and close filesystem"() {
-    when:
-    def fileSystem = FileSystems.newFileSystem(uri, [:])
+  def fileSystem = FileSystems.newFileSystem(uri, [:])
+
+  def cleanup() {
     fileSystem.close()
+  }
+
+  @PendingFeature
+  def "returns root directories"() {
+    when:
+    def roots = fileSystem.rootDirectories
 
     then:
-    fileSystem != null
+    roots.size() == 1
+    roots[0].toString() == '\\'
   }
 }
