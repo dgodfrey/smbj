@@ -16,7 +16,6 @@
 package com.hierynomus.smbj
 
 import java.nio.file.FileSystems
-import spock.lang.PendingFeature
 
 class FileSystemIntegrationSpec extends SmbSpecification {
   def uri = URI.create("smb://${USER}:${PASSWORD}@${c.containerIpAddress}:${c.firstMappedPort}/user")
@@ -27,7 +26,6 @@ class FileSystemIntegrationSpec extends SmbSpecification {
     fileSystem.close()
   }
 
-  @PendingFeature
   def "returns root directories"() {
     when:
     def roots = fileSystem.rootDirectories

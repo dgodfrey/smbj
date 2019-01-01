@@ -21,15 +21,19 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
+import java.util.Collections;
 import java.util.Set;
 
 class SmbFileSystem extends FileSystem {
+
     private final SmbFileSystemProvider provider;
+    private final SmbFsPath root;
 
     private boolean open;
 
     SmbFileSystem(SmbFileSystemProvider provider) {
         this.provider = provider;
+        this.root = new SmbFsPath(this, true);
     }
 
     @Override
@@ -62,9 +66,7 @@ class SmbFileSystem extends FileSystem {
 
     @Override
     public Iterable<Path> getRootDirectories() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
-
+        return Collections.singleton((Path)root);
     }
 
     @Override
