@@ -63,7 +63,7 @@ public class SmbFsPath implements Path {
         if (segmentLength == 0)
             return null;
 
-        return newRelativePath(segmentLength, segmentLength - 1);
+        return newRelativePath(segmentLength - 1, segmentLength);
     }
 
     @Override
@@ -76,20 +76,29 @@ public class SmbFsPath implements Path {
 
     @Override
     public int getNameCount() {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        return segments.length;
     }
 
     @Override
     public Path getName(int index) {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        if (index < 0 || index >= segments.length)
+            throw new IllegalArgumentException();
+
+        return newRelativePath(index, index + 1);
     }
 
     @Override
     public Path subpath(int beginIndex, int endIndex) {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+        if (beginIndex < 0 || beginIndex >= segments.length)
+            throw new IllegalArgumentException();
+
+        if (endIndex > segments.length)
+            throw new IllegalArgumentException();
+
+        if (endIndex <= beginIndex)
+            throw new IllegalArgumentException();
+
+        return newRelativePath(beginIndex, endIndex);
     }
 
     @Override
@@ -200,7 +209,7 @@ public class SmbFsPath implements Path {
         throw new UnsupportedOperationException("todo");
     }
 
-    private Path newRelativePath(int to, int from) {
+    private Path newRelativePath(int from, int to) {
         return newPath(false, from, to);
     }
 

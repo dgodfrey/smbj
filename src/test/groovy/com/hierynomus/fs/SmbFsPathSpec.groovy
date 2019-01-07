@@ -23,38 +23,76 @@ class SmbFsPathSpec extends Specification {
 
   def 'calculates path'() {
     expect:
-    new SmbFsPath(null, true).toString() == '\\'
-    new SmbFsPath(null, true, 'file.txt').toString() == '\\file.txt'
-    new SmbFsPath(null, true, 'dir').toString() == '\\dir'
-    new SmbFsPath(null, true, 'dir', 'dir2').toString() == '\\dir\\dir2'
+    path(true).toString() == '\\'
+    path(true, 'file.txt').toString() == '\\file.txt'
+    path(true, 'dir').toString() == '\\dir'
+    path(true, 'dir', 'dir2').toString() == '\\dir\\dir2'
 
-    new SmbFsPath(null, false).toString() == ''
-    new SmbFsPath(null, false, 'file.txt').toString() == 'file.txt'
-    new SmbFsPath(null, false, 'dir').toString() == 'dir'
-    new SmbFsPath(null, false, 'dir', 'dir2').toString() == 'dir\\dir2'
+    path(false).toString() == ''
+    path(false, 'file.txt').toString() == 'file.txt'
+    path(false, 'dir').toString() == 'dir'
+    path(false, 'dir', 'dir2').toString() == 'dir\\dir2'
   }
 
   def 'returns root'() {
     expect:
-    new SmbFsPath(fileSystem, true, 'dir', 'dir2').root.toString() == '\\'
+    path(true, 'dir', 'dir2').root.toString() == '\\'
 
-    new SmbFsPath(fileSystem, false, 'dir', 'dir2').root == null
+    path(false, 'dir', 'dir2').root == null
   }
 
   def 'returns filename'() {
     expect:
-    new SmbFsPath(fileSystem, true).fileName == null
-    new SmbFsPath(fileSystem, true, 'dir', 'dir2').fileName.toString() == 'dir2'
-    new SmbFsPath(fileSystem, false, 'dir', 'file.txt').fileName.toString() == 'file.txt'
+    path(true).fileName == null
+    path(true, 'dir', 'dir2').fileName.toString() == 'dir2'
+    path(false, 'dir', 'file.txt').fileName.toString() == 'file.txt'
   }
 
   def 'returns parent'() {
     expect:
-    new SmbFsPath(fileSystem, true).parent == null
-    new SmbFsPath(fileSystem, true, "dir").parent.toString() == '\\'
-    new SmbFsPath(fileSystem, true, "dir", "dir2").parent.toString() == '\\dir'
+    path(true).parent == null
+    path(true, "dir").parent.toString() == '\\'
+    path(true, "dir", "dir2").parent.toString() == '\\dir'
 
-    new SmbFsPath(fileSystem, false, "dir").parent == null
-    new SmbFsPath(fileSystem, false, "dir", "dir2").parent.toString() == 'dir'
+    path(false, "dir").parent == null
+    path(false, "dir", "dir2").parent.toString() == 'dir'
+  }
+
+  def 'returns name count'() {
+    expect:
+    path(true).nameCount == 0
+    path(true, "dir").nameCount == 1
+    path(true, "dir", "dir2").nameCount == 2
+
+    path(false, "dir").nameCount == 1
+    path(false, "dir", "dir2").nameCount == 2
+  }
+
+  def 'returns name'() {
+    expect:
+    path(true, "dir").getName(0).toString() == 'dir'
+    path(true, "dir", "dir2").getName(0).toString() == 'dir'
+    path(true, "dir", "dir2").getName(1).toString() == 'dir2'
+
+    path(false, "dir").getName(0).toString() == 'dir'
+    path(false, "dir", "dir2").getName(0).toString() == 'dir'
+    path(false, "dir", "dir2").getName(1).toString() == 'dir2'
+  }
+
+  def 'returns subpath'() {
+    when:
+    def abs = path(true, "dir", "dir2", 'dir3', 'dir4')
+    def rel = path(false, "dir", "dir2", 'dir3', 'dir4')
+
+    then:
+    abs.subpath(1, 2).toString() == 'dir2'
+    abs.subpath(1, 4).toString() == 'dir2\\dir3\\dir4'
+
+    rel.subpath(1, 2).toString() == 'dir2'
+    rel.subpath(1, 4).toString() == 'dir2\\dir3\\dir4'
+  }
+
+  private SmbFsPath path(boolean absolute, String... segments) {
+    new SmbFsPath(fileSystem, absolute, segments)
   }
 }
