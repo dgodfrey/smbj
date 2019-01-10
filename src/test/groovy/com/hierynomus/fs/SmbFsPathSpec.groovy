@@ -15,7 +15,10 @@
  */
 package com.hierynomus.fs
 
+import java.nio.file.InvalidPathException
 import spock.lang.Specification
+
+import static com.hierynomus.fs.SmbFsPath.newSmbFsPath
 
 class SmbFsPathSpec extends Specification {
 
@@ -28,10 +31,17 @@ class SmbFsPathSpec extends Specification {
     abs('dir').toString() == '\\dir'
     abs('dir', 'dir2').toString() == '\\dir\\dir2'
 
-    rel().toString() == ''
     rel('file.txt').toString() == 'file.txt'
     rel('dir').toString() == 'dir'
     rel('dir', 'dir2').toString() == 'dir\\dir2'
+  }
+
+  def 'disallows empty relative paths'() {
+    when:
+    rel()
+
+    then:
+    thrown InvalidPathException
   }
 
   def 'returns root'() {
@@ -94,10 +104,10 @@ class SmbFsPathSpec extends Specification {
   }
 
   private SmbFsPath abs(String... segments) {
-    new SmbFsPath(fileSystem, true, segments)
+    newSmbFsPath(fileSystem, true, segments)
   }
 
   private SmbFsPath rel(String... segments) {
-    new SmbFsPath(fileSystem, false, segments)
+    newSmbFsPath(fileSystem, false, segments)
   }
 }

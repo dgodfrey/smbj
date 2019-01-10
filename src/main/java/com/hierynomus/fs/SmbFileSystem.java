@@ -24,6 +24,8 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.hierynomus.fs.SmbFsPath.newSmbFsPath;
+
 class SmbFileSystem extends FileSystem {
 
     private final SmbFileSystemProvider provider;
@@ -33,7 +35,7 @@ class SmbFileSystem extends FileSystem {
 
     SmbFileSystem(SmbFileSystemProvider provider) {
         this.provider = provider;
-        this.root = new SmbFsPath(this, true);
+        this.root = newSmbFsPath(this, true);
     }
 
     @Override

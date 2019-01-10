@@ -17,6 +17,7 @@ package com.hierynomus.fs;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.InvalidPathException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
@@ -33,7 +34,7 @@ public class SmbFsPath implements Path {
     private final boolean absolute;
     private final String[] segments;
 
-    SmbFsPath(SmbFileSystem fileSystem, boolean absolute, String... segments) {
+    private SmbFsPath(SmbFileSystem fileSystem, boolean absolute, String... segments) {
         this.fileSystem = fileSystem;
         this.absolute = absolute;
         this.segments = segments;
@@ -218,7 +219,7 @@ public class SmbFsPath implements Path {
     }
 
     private Path newPath(boolean absolute, int from, int to) {
-        return new SmbFsPath(fileSystem, absolute, Arrays.copyOfRange(segments, from, to));
+        return newSmbFsPath(fileSystem, absolute, Arrays.copyOfRange(segments, from, to));
     }
 
     @Override
@@ -237,5 +238,13 @@ public class SmbFsPath implements Path {
         }
 
         return b.toString();
+    }
+
+    static SmbFsPath newSmbFsPath(SmbFileSystem fileSystem, boolean absolute, String... segments) {
+
+        if (!absolute && segments.length == 0)
+            throw new InvalidPathException(Arrays.toString(segments), "No segments specified for relative path");
+
+        return new SmbFsPath(fileSystem, absolute, segments);
     }
 }
