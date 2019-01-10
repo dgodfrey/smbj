@@ -15,10 +15,18 @@
  */
 package com.hierynomus.smbj
 
+import java.nio.charset.Charset
 import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Paths
+import spock.lang.PendingFeature
+
+import static java.util.Arrays.equals
 
 class FileSystemIntegrationSpec extends SmbSpecification {
-  def uri = URI.create("smb://${USER}:${PASSWORD}@${c.containerIpAddress}:${c.firstMappedPort}/user")
+  def shareName = 'user';
+  def uriString = "smb://${USER}:${PASSWORD}@${c.containerIpAddress}:${c.firstMappedPort}/${shareName}";
+  def uri = URI.create(uriString);
 
   def fileSystem = FileSystems.newFileSystem(uri, [:])
 
@@ -33,5 +41,19 @@ class FileSystemIntegrationSpec extends SmbSpecification {
     then:
     roots.size() == 1
     roots[0].toString() == '\\'
+  }
+
+  @PendingFeature
+  def "reads a file"() {
+    given:
+    def data = "test".getBytes(Charset.forName('ISO-8859-1'));
+    Files.write(folder.root.toPath().resolve('test.txt'), data)
+
+    when:
+    def path = Paths.get(URI.create("${uriString}/test"));
+    def readData = Files.readAllBytes(path);
+
+    then:
+    equals(data, readData)
   }
 }
