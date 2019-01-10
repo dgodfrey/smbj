@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.hierynomus.fs.SmbFsPath.newSmbFsPath;
+import static com.hierynomus.smbj.common.SmbPath.rewritePath;
+import static java.util.Arrays.copyOfRange;
 
 class SmbFileSystem extends FileSystem {
 
@@ -88,9 +90,19 @@ class SmbFileSystem extends FileSystem {
     }
 
     @Override
-    public Path getPath(String first, String... more) {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+    public SmbFsPath getPath(String first, String... more) {
+
+        StringBuilder b = new StringBuilder(first);
+        for (String each : more)
+            b.append('\\').append(each);
+
+        String rewritten = rewritePath(b.toString());
+        String[] allSegments = rewritten.split("\\\\");
+
+        boolean absolute = rewritten.startsWith("\\");
+        String[] segments = copyOfRange(allSegments, absolute ? 1 : 0, allSegments.length);
+
+        return newSmbFsPath(this, absolute, segments);
     }
 
     @Override

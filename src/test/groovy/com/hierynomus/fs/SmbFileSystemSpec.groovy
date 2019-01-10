@@ -34,4 +34,19 @@ class SmbFileSystemSpec extends Specification {
     1 * provider.removeFileSystem(fileSystem)
     !fileSystem.open
   }
+
+  def 'returns Paths'() {
+    expect:
+    fileSystem.getPath('\\simple.txt').toString() == '\\simple.txt'
+    fileSystem.getPath('\\dir\\simple.txt').toString() == '\\dir\\simple.txt'
+    fileSystem.getPath('\\dir', 'simple.txt').toString() == '\\dir\\simple.txt'
+    fileSystem.getPath('\\dir', 'dir2\\simple.txt').toString() == '\\dir\\dir2\\simple.txt'
+    fileSystem.getPath('\\dir', 'dir2', 'simple.txt').toString() == '\\dir\\dir2\\simple.txt'
+
+    fileSystem.getPath('simple.txt').toString() == 'simple.txt'
+    fileSystem.getPath('dir\\simple.txt').toString() == 'dir\\simple.txt'
+    fileSystem.getPath('dir', 'simple.txt').toString() == 'dir\\simple.txt'
+    fileSystem.getPath('dir', 'dir2\\simple.txt').toString() == 'dir\\dir2\\simple.txt'
+    fileSystem.getPath('dir', 'dir2', 'simple.txt').toString() == 'dir\\dir2\\simple.txt'
+  }
 }
