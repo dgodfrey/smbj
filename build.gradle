@@ -1,5 +1,4 @@
-import com.bmuschko.gradle.docker.tasks.container.*
-import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import java.text.SimpleDateFormat
 
 plugins {
@@ -45,6 +44,7 @@ dependencies {
   testRuntime OBJENESIS
   testCompile SPOCK_CORE
   testCompile COMMONS_IO
+  testCompile TEST_CONTAINERS
   testRuntime LOGBACK_CLASSIC
 }
 
@@ -243,23 +243,7 @@ task buildItestImage(type: DockerBuildImage) {
   tag = 'smbj/smbj-itest'
 }
 
-task createItestContainer(type: DockerCreateContainer) {
-  dependsOn buildItestImage
-  targetImageId { buildItestImage.getImageId() }
-  portBindings = ['445:445']
-}
-
-task startItestContainer(type: DockerStartContainer) {
-  dependsOn createItestContainer
-  targetContainerId { createItestContainer.getContainerId() }
-}
-
-task stopItestContainer(type: DockerStopContainer) {
-  targetContainerId { createItestContainer.getContainerId() }
-}
-
-project.tasks.integrationTest.dependsOn(startItestContainer)
-project.tasks.integrationTest.finalizedBy(stopItestContainer)
+project.tasks.integrationTest.dependsOn(buildItestImage)
 
 task forkedUploadRelease(type: GradleBuild) {
   buildFile = project.buildFile

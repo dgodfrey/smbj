@@ -22,25 +22,22 @@ import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.share.Directory
 import com.hierynomus.smbj.share.DiskShare
 import com.hierynomus.smbj.share.File
-import spock.lang.Specification
 
 import static com.hierynomus.mssmb2.SMB2CreateDisposition.FILE_OPEN
 
-class IntegrationTest extends Specification {
-  static final def IP = "127.0.0.1"
+class IntegrationTest extends SmbSpecification {
   static final def AUTH = new AuthenticationContext("smbj", "smbj".toCharArray(), null)
   static final def SHARE = "public"
   static final def FOLDER_THAT_EXISTS = "folder"
   static final def FILE_THAT_EXISTS = "test.txt"
   static final def FOLDER_THAT_DOES_NOT_EXIST = "foo"
 
-
   def config = SmbConfig.builder().withSigningRequired(true).withMultiProtocolNegotiate(true).withDfsEnabled(true).withSecurityProvider(new BCSecurityProvider()).build()
   def client = new SMBClient(config)
   def connection = _
 
   def setup() {
-    connection = client.connect(IP)
+    connection = client.connect(c.containerIpAddress, c.firstMappedPort)
   }
 
   def cleanup() {

@@ -27,14 +27,14 @@ import com.hierynomus.smbj.io.ArrayByteChunkProvider
 import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
 import com.hierynomus.smbj.transport.tcp.async.AsyncDirectTcpTransportFactory
-import spock.lang.Specification
+import java.nio.charset.StandardCharsets
 import spock.lang.Unroll
 
-import java.nio.charset.StandardCharsets
+import static com.hierynomus.mssmb2.SMB2CreateDisposition.FILE_CREATE
+import static com.hierynomus.mssmb2.SMB2CreateDisposition.FILE_OPEN
+import static com.hierynomus.mssmb2.SMB2CreateDisposition.FILE_OVERWRITE_IF
 
-import static com.hierynomus.mssmb2.SMB2CreateDisposition.*
-
-class SMB2FileIntegrationTest extends Specification {
+class SMB2FileIntegrationTest extends SmbSpecification {
 
   DiskShare share
   Session session
@@ -48,7 +48,7 @@ class SMB2FileIntegrationTest extends Specification {
     .withTransportLayerFactory(new AsyncDirectTcpTransportFactory<>())
       .withSigningRequired(true).build()
     client = new SMBClient(config)
-    connection = client.connect("127.0.0.1")
+    connection = client.connect(c.containerIpAddress, c.firstMappedPort)
     session = connection.authenticate(new AuthenticationContext("smbj", "smbj".toCharArray(), null))
     share = session.connectShare("user") as DiskShare
   }

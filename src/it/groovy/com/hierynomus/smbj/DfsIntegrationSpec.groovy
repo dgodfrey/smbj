@@ -23,9 +23,9 @@ import com.hierynomus.smbj.connection.Connection
 import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
 import spock.lang.Ignore
-import spock.lang.Specification
 
-class DfsIntegrationSpec extends Specification {
+class DfsIntegrationSpec extends SmbSpecification {
+
   Session session
   Connection connection
   SMBClient client
@@ -38,7 +38,7 @@ class DfsIntegrationSpec extends Specification {
       .withDfsEnabled(true)
       .build()
     client = new SMBClient(config)
-    connection = client.connect("127.0.0.1")
+    connection = client.connect(c.containerIpAddress, c.firstMappedPort)
     session = connection.authenticate(new AuthenticationContext("smbj", "smbj".toCharArray(), null))
   }
 
