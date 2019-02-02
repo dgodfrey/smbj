@@ -15,16 +15,33 @@
  */
 package com.hierynomus.smbj
 
+import org.junit.ClassRule
+import org.junit.rules.TemporaryFolder
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
 import spock.lang.Specification
 
-@Testcontainers
 class SmbSpecification extends Specification {
   @Shared
-  GenericContainer c = new GenericContainer("smbj/smbj-itest:latest")
-    .waitingFor(Wait.forLogMessage('.*nmbd entered RUNNING state.*', 1))
-    .withExposedPorts(445);
+  @ClassRule
+  TemporaryFolder folder = new TemporaryFolder();
+
+  @Shared
+  GenericContainer c;
+
+  void setupSpec() {
+    folder.getRoot().setWritable(true, false);
+
+    c = new GenericContainer<>("smbj/smbj-itest:latest")
+      .waitingFor(Wait.forLogMessage('.*nmbd entered RUNNING state.*', 1))
+      .withFileSystemBind(folder.root.absolutePath, '/opt/samba/user')
+      .withExposedPorts(445);
+
+    c.start()
+  }
+
+  def cleanupSpec() {
+    c.stop()
+  }
 }
