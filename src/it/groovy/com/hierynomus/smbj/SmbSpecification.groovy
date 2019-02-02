@@ -15,6 +15,11 @@
  */
 package com.hierynomus.smbj
 
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 import org.junit.ClassRule
 import org.junit.rules.TemporaryFolder
 import org.testcontainers.containers.GenericContainer
@@ -41,7 +46,35 @@ class SmbSpecification extends Specification {
     c.start()
   }
 
+  def cleanup() {
+    def root = folder.root.toPath()
+
+    Files.walkFileTree(root, new Deleter(root));
+  }
+
   def cleanupSpec() {
     c.stop()
+  }
+
+  static class Deleter extends SimpleFileVisitor<Path> {
+
+    private Path root
+
+    Deleter(Path root) {
+      this.root = root
+    }
+
+    @Override
+    FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+      Files.delete(file);
+      return super.visitFile(file, attrs)
+    }
+
+    @Override
+    FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      if (dir != root)
+        Files.delete(dir);
+      return super.postVisitDirectory(dir, exc)
+    }
   }
 }

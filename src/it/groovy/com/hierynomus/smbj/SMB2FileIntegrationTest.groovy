@@ -76,9 +76,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
     expect:
     share.list(path).collect { it.fileName } contains "test"
 
-    cleanup:
-    share.rm("test")
-
     where:
     path << ["", null]
   }
@@ -90,9 +87,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
     expect:
     share.list("").collect { it.fileName } contains "folder-1"
     share.list("folder-1").collect { it.fileName } == [".", ".."]
-
-    cleanup:
-    share.rmdir("folder-1", true)
   }
 
   def "should read file contents of file in directory"() {
@@ -112,7 +106,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
     cleanup:
     is?.close()
     read.close()
-    share.rmdir("api", true)
   }
 
   def "should delete locked file"() {
@@ -129,7 +122,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
 
     cleanup:
     lockedFile.close()
-    share.rm("locked")
   }
 
   def "should transfer big file to share"() {
@@ -180,10 +172,8 @@ class SMB2FileIntegrationTest extends SmbSpecification {
 
     then:
     readBytes == bytes
-
-    cleanup:
-    share.rm("bigfile")
   }
+
   def "should append to the file"() {
     given:
     def file = share.openFile("appendfile", EnumSet.of(AccessMask.FILE_WRITE_DATA), null, SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN_IF, null)
@@ -253,9 +243,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
 
     then:
     readBytes == [bytes,bytes2].flatten()
-
-    cleanup:
-    share.rm("appendfile")
   }
 
   def "should be able to copy files remotely"() {
@@ -275,19 +262,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
     def srcSize = src.getFileInformation(FileStandardInformation.class).endOfFile
     def dstSize = dst.getFileInformation(FileStandardInformation.class).endOfFile
     srcSize == dstSize
-
-    cleanup:
-    try {
-      share.rm("srcFile")
-    } catch (SMBApiException e) {
-      // Ignored
-    }
-
-    try {
-      share.rm("dstFile")
-    } catch (SMBApiException e) {
-      // Ignored
-    }
   }
 
   def "should correctly detect file and folder existence"() {
@@ -304,10 +278,6 @@ class SMB2FileIntegrationTest extends SmbSpecification {
     !share.fileExists("im_a_directory")
     !share.fileExists("i_do_not_exist")
     !share.folderExists("i_do_not_exist")
-
-    cleanup:
-    share.rm("im_a_file")
-    share.rmdir("im_a_directory", false)
   }
 
   def "should not fail if rm response is DELETE_PENDING"() {
