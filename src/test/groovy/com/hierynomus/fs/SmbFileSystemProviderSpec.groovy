@@ -15,16 +15,21 @@
  */
 package com.hierynomus.fs
 
+
 import java.nio.file.FileSystemAlreadyExistsException
 import java.nio.file.FileSystemNotFoundException
 import spock.lang.Specification
 
 abstract class SmbFileSystemProviderSpec extends Specification {
 
+  def factory = Mock(Factory)
+
   def uri = URI.create('smb://user:password@server/share')
-  def provider = new SmbFileSystemProvider()
+  def provider = new SmbFileSystemProvider(factory)
 
   static class WithNoFileSystems extends SmbFileSystemProviderSpec {
+
+    def fileSystem = Mock(SmbFileSystem)
 
     def "should throw exception if FileSystem not created"() {
       when:
@@ -59,17 +64,28 @@ abstract class SmbFileSystemProviderSpec extends Specification {
     }
 
     def "creates a FileSystem"() {
+      given:
+      factory.createFileSystem(provider) >> fileSystem
+
       when:
       def fs = provider.newFileSystem(uri, [:])
 
       then:
-      fs instanceof SmbFileSystem
+      fs == fileSystem
     }
   }
 
   static class WithFileSystem extends SmbFileSystemProviderSpec {
 
-    def fileSystem = provider.newFileSystem(uri, [:])
+    def mockFileSystem1 = Mock(SmbFileSystem)
+    def mockFileSystem2 = Mock(SmbFileSystem)
+
+    SmbFileSystem fileSystem
+
+    def setup() {
+      factory.createFileSystem(provider) >>> [mockFileSystem1, mockFileSystem2]
+      fileSystem = provider.newFileSystem(uri, [:])
+    }
 
     def "should throw exception if fileSystem already created"() {
       when:
@@ -84,7 +100,7 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       def other = provider.newFileSystem(URI.create('smb://user:password@server2/share'), [:])
 
       then:
-      other != fileSystem
+      other == mockFileSystem2
     }
 
     def "can create filesystem for different user"() {
@@ -92,7 +108,7 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       def other = provider.newFileSystem(URI.create('smb://user2:password@server/share'), [:])
 
       then:
-      other != fileSystem
+      other == mockFileSystem2
     }
 
     def "can create filesystem for different share"() {
@@ -100,7 +116,7 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       def other = provider.newFileSystem(URI.create('smb://user:password@server/share2'), [:])
 
       then:
-      other != fileSystem
+      other == mockFileSystem2
     }
 
     def "should return same FileSystem if fileSystem already created"() {
@@ -108,7 +124,7 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       def current = provider.getFileSystem(uri)
 
       then:
-      fileSystem == current
+      current == mockFileSystem1
     }
 
     def "should return same FileSystem if fileSystem already created except with different password"() {
@@ -116,7 +132,7 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       def current = provider.getFileSystem(URI.create('smb://user:XXXXX@server/share'))
 
       then:
-      fileSystem == current
+      current == mockFileSystem1
     }
 
     def "should remove FileSystem"() {
@@ -131,7 +147,7 @@ abstract class SmbFileSystemProviderSpec extends Specification {
       def current = provider.newFileSystem(uri, [:])
 
       then:
-      fileSystem != current
+      current == mockFileSystem2
     }
   }
 }

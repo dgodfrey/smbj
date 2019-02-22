@@ -39,6 +39,18 @@ public class SmbFileSystemProvider extends FileSystemProvider {
     private static final String SCHEME = "smb";
 
     private final Map<String, SmbFileSystem> fileSystems = new HashMap<>();
+    private Factory factory;
+
+    /**
+     * Constructor. Used by {@link java.nio.file.Paths#get(URI)}.
+     */
+    public SmbFileSystemProvider() {
+        this(new FactoryImpl());
+    }
+
+    SmbFileSystemProvider(Factory factory) {
+        this.factory = factory;
+    }
 
     @Override
     public String getScheme() {
@@ -53,7 +65,7 @@ public class SmbFileSystemProvider extends FileSystemProvider {
             if (fileSystems.containsKey(key))
                 throw new FileSystemAlreadyExistsException(key);
 
-            SmbFileSystem fileSystem = new SmbFileSystem(this);
+            SmbFileSystem fileSystem = factory.createFileSystem(this);
             fileSystems.put(key, fileSystem);
             return fileSystem;
         }
