@@ -22,9 +22,11 @@ import spock.lang.Specification
 
 abstract class SmbFileSystemProviderSpec extends Specification {
 
+  String uriString = 'smb://user:password@server/share'
+
   def factory = Mock(Factory)
 
-  def uri = URI.create('smb://user:password@server/share')
+  def uri = URI.create(uriString)
   def provider = new SmbFileSystemProvider(factory)
 
   static class WithNoFileSystems extends SmbFileSystemProviderSpec {
@@ -148,6 +150,23 @@ abstract class SmbFileSystemProviderSpec extends Specification {
 
       then:
       current == mockFileSystem2
+    }
+
+    def 'should return path from URI'() {
+      when:
+      def path1 = provider.getPath(URI.create("${uriString}/dir/file.txt"))
+      def path2 = provider.getPath(URI.create("${uriString}/file2.txt"))
+      def path3 = provider.getPath(URI.create("smb://user:password@server/share2/file2.txt"))
+
+      then:
+      path1.fileSystem == mockFileSystem1
+      path1.toString() == '\\dir\\file.txt'
+
+      path2.fileSystem == mockFileSystem1
+      path2.toString() == '\\file2.txt'
+
+      path3.fileSystem == mockFileSystem2
+      path3.toString() == '\\file2.txt'
     }
   }
 }

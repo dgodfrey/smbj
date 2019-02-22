@@ -30,9 +30,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static com.hierynomus.fs.SmbFsPath.newSmbFsPath;
 
 public class SmbFileSystemProvider extends FileSystemProvider {
 
@@ -65,7 +68,7 @@ public class SmbFileSystemProvider extends FileSystemProvider {
             if (fileSystems.containsKey(key))
                 throw new FileSystemAlreadyExistsException(key);
 
-            SmbFileSystem fileSystem = factory.createFileSystem(this);
+            SmbFileSystem fileSystem = createFileSystem();
             fileSystems.put(key, fileSystem);
             return fileSystem;
         }
@@ -137,10 +140,30 @@ public class SmbFileSystemProvider extends FileSystemProvider {
     }
 
     @Override
-    public Path getPath(URI uri) {
-        // Todo: implement
-        throw new UnsupportedOperationException("todo");
+    public SmbFsPath getPath(URI uri) {
+        SmbFileSystem fs = getOrNewFileSystem(uri);
+
+        String[] split = uri.getPath().split("/");
+        // split[0] is empty, as path starts with /, so take from 2nd.
+        String[] path = Arrays.copyOfRange(split, 2, split.length);
+
+        return newSmbFsPath(fs, true, path);
     }
+
+    private SmbFileSystem getOrNewFileSystem(URI uri) {
+        String key = getKey(uri);
+        synchronized (fileSystems) {
+            if (!fileSystems.containsKey(key))
+                fileSystems.put(key, createFileSystem());
+
+            return fileSystems.get(key);
+        }
+    }
+
+    private SmbFileSystem createFileSystem() {
+        return factory.createFileSystem(this);
+    }
+
 
     @Override
     public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) {
