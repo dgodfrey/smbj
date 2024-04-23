@@ -15,13 +15,10 @@
  */
 package com.hierynomus.smbj;
 
-import static com.hierynomus.smbj.testing.TestingUtils.DEFAULT_AUTHENTICATION_CONTEXT;
-import static org.assertj.core.api.Assertions.as;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
-import java.util.List;
-
+import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation;
+import com.hierynomus.smbj.share.DiskShare;
+import com.hierynomus.smbj.share.Share;
+import com.hierynomus.smbj.testcontainers.SambaContainer;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,15 +26,17 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation;
-import com.hierynomus.smbj.share.DiskShare;
-import com.hierynomus.smbj.share.Share;
-import com.hierynomus.smbj.testcontainers.SambaContainer;
+import java.util.List;
+
+import static com.hierynomus.smbj.testing.TestingUtils.DEFAULT_AUTHENTICATION_CONTEXT;
+import static org.assertj.core.api.Assertions.as;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @Testcontainers
 public class IntegrationTest {
     @Container
-    private static final SambaContainer samba = new SambaContainer.Builder().build();
+    private static final SambaContainer samba = SambaContainer.INSTANCE;
 
     @ParameterizedTest(name = "should connect")
     @MethodSource("com.hierynomus.smbj.testing.TestingUtils#defaultTestingConfig")
